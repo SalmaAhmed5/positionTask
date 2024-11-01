@@ -1,0 +1,20 @@
+[
+  {
+    "name": "Manager",
+    "description": "Responsible for overseeing team operations",
+    "id": 1,
+    "history": [{ "name": "Name", "id": 1 }]
+  },
+  {
+    "name": "CEO",
+    "description": "Chief Executive Officer",
+    "id": 2,
+    "history": [{ "name": "Name", "id": 1 }]
+  },
+  {
+    "name": "Employee",
+    "description": "Works on various tasks assigned by managers",
+    "id": 3,
+    "history": [{ "name": "Name", "id": 1 }]
+  }
+]
