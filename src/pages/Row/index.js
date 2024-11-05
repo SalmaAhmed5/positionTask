@@ -23,16 +23,16 @@ function Row({
   SaveEditData,
   SaveEdiRow,
   setRows,
-  moveHistoryRow,
+  movechildrenRow,
   movePosition,
   nameEditing,
   editPosition,
   setEditingName,
   setEditingNameValue,
   editingNameValue,
-  getSerializableData,
   editId,
   setEditId,
+  level,
 }) {
   const [open, setOpen] = React.useState(false);
   const [newNameValue, setNewNameValue] = React.useState("");
@@ -40,7 +40,7 @@ function Row({
 
   const ItemTypes = {
     POSITION: "position",
-    HISTORY_ROW: "historyRow",
+    children_ROW: "childrenRow",
   };
   const [{ isDragging }, drag] = useDrag({
     type: ItemTypes.POSITION,
@@ -61,11 +61,10 @@ function Row({
   });
 
   const AddNewName = (row, parentIndex) => {
-    // Logic to add a new history row
-    console.log(row);
-    const newHistoryRow = {
+    // Logic to add a new children row
+    const newchildrenRow = {
       name: newNameValue,
-      id: row.history.length > 0 ? row.history.length + 1 : 1,
+      id: row.children.length > 0 ? row.children.length + 1 : 1,
       edit: (
         <div className="flex gap-3 justify-center">
           <Button variant="contained" startIcon={<CreateIcon />}>
@@ -78,22 +77,16 @@ function Row({
       ),
     };
 
-    // Add new history row
+    // Add new children row
     const updatedRows = rows.map((item, index) =>
       index === parentIndex
-        ? { ...item, history: [...item.history, newHistoryRow] }
+        ? { ...item, children: [...item.children, newchildrenRow] }
         : item
     );
 
     setRows(updatedRows); // Update state with new row data
     setNewNameValue(""); // Reset input field
   };
-
-  // This useEffect will trigger every time `rows` changes, saving it to localStorage
-  React.useEffect(() => {
-    const serializableRows = getSerializableData(rows);
-    localStorage.setItem("tableRows", JSON.stringify(serializableRows));
-  }, [rows]);
 
   return (
     <React.Fragment>
@@ -126,7 +119,7 @@ function Row({
       <TableRow className="bg-[#e0e0e054]">
         <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={5}>
           <Collapse in={open} timeout="auto" unmountOnExit>
-            <Table size="large" aria-label="history">
+            <Table size="large" aria-label="children">
               <TableHead>
                 <TableRow>
                   <TableCell></TableCell>
@@ -140,27 +133,34 @@ function Row({
                   >
                     Actions
                   </TableCell>
+                  <TableCell></TableCell>
                 </TableRow>
               </TableHead>
+
               <TableBody>
-                {row?.history?.map((historyRow, index) => (
-                  <ChildRow
-                    key={historyRow?.name}
-                    historyRow={historyRow}
-                    index={index}
-                    parentIndex={rowIndex}
-                    deleteRow={deleteRow}
-                    editRow={editRow}
-                    SaveEditData={SaveEditData}
-                    moveHistoryRow={moveHistoryRow}
-                    nameEditing={nameEditing}
-                    editingNameValue={editingNameValue}
-                    setEditingNameValue={setEditingNameValue}
-                    setEditingName={setEditingName}
-                    SaveEdiRow={SaveEdiRow}
-                    editId={editId}
-                    setEditId={setEditId}
-                  />
+                {row?.children?.map((childrenRow, index) => (
+                  <>
+                    <ChildRow
+                      key={childrenRow?.name}
+                      childrenRow={childrenRow}
+                      index={index}
+                      parentIndex={rowIndex}
+                      deleteRow={deleteRow}
+                      editRow={editRow}
+                      SaveEditData={SaveEditData}
+                      movechildrenRow={movechildrenRow}
+                      nameEditing={nameEditing}
+                      editingNameValue={editingNameValue}
+                      setEditingNameValue={setEditingNameValue}
+                      setEditingName={setEditingName}
+                      SaveEdiRow={SaveEdiRow}
+                      editId={editId}
+                      setEditId={setEditId}
+                      setNewNameValue={setNewNameValue}
+                      setRows={setRows}
+                      level={childrenRow.level}
+                    />
+                  </>
                 ))}
                 <TableRow>
                   <TableCell></TableCell>
@@ -172,7 +172,7 @@ function Row({
                       size="small"
                     />
                   </TableCell>
-                  <TableCell colSpan={2} align="center">
+                  <TableCell colSpan={3} align="center">
                     <Button
                       color="success"
                       variant="contained"

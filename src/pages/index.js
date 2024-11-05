@@ -14,15 +14,17 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import CreateIcon from "@mui/icons-material/Create";
 import Row from "./Row";
 
-function createData(name, description, id) {
+function createData(name, description, id, level) {
   return {
     name,
     description,
     id,
-    history: [
+    level,
+    children: [
       {
         id: 1,
-        name: "Name",
+        name: "1",
+        level: 1,
         edit: (
           <div className="flex gap-3 justify-center">
             <Button variant="contained" startIcon={<CreateIcon />}>
@@ -37,22 +39,11 @@ function createData(name, description, id) {
             </Button>
           </div>
         ),
+        children: [],
       },
     ],
   };
 }
-
-const getSerializableData = (rows) => {
-  return rows.map((row) => ({
-    name: row.name,
-    description: row.description,
-    id: row.id,
-    history: row.history.map((historyItem) => ({
-      id: historyItem.id,
-      name: historyItem.name,
-    })),
-  }));
-};
 
 export default function CollapsibleTable() {
   const [rows, setRows] = React.useState([]);
@@ -66,7 +57,6 @@ export default function CollapsibleTable() {
     const fetchData = async () => {
       try {
         const response = await fetch("/db.json"); // Use root-relative path
-        console.log("here");
 
         if (!response.ok) {
           // Log the status and statusText if the response is not ok
@@ -79,11 +69,10 @@ export default function CollapsibleTable() {
         }
 
         const data = await response.json(); // Parse the response as JSON
-        console.log(data); // Log the parsed JSON data
 
         // Format the data to the structure your component needs
         const formattedData = data.map((item) =>
-          createData(item.name, item.description, item.id)
+          createData(item.name, item.description, item.id, item.level)
         );
         setRows(formattedData); // Set the formatted data to your state
       } catch (error) {
@@ -94,29 +83,24 @@ export default function CollapsibleTable() {
     fetchData();
   }, []);
 
-  React.useEffect(() => {
-    const serializableRows = getSerializableData(rows);
-    localStorage.setItem("tableRows", JSON.stringify(serializableRows));
-  }, [rows]);
-
-  const moveHistoryRow = (
+  const movechildrenRow = (
     draggedIndex,
     fromParentIndex,
     toParentIndex,
     toIndex = 0
   ) => {
     const updatedRows = [...rows];
-    const [draggedRow] = updatedRows[fromParentIndex].history.splice(
+    const [draggedRow] = updatedRows[fromParentIndex].children.splice(
       draggedIndex,
       1
     );
-    updatedRows[toParentIndex].history.splice(toIndex, 0, draggedRow);
+    updatedRows[toParentIndex].children.splice(toIndex, 0, draggedRow);
     setRows(updatedRows);
   };
 
   const deleteRow = (childIndex, parentIndex) => {
     const updatedRows = [...rows];
-    updatedRows[parentIndex].history.splice(childIndex, 1);
+    updatedRows[parentIndex].children.splice(childIndex, 1);
     setRows(updatedRows);
   };
 
@@ -130,13 +114,13 @@ export default function CollapsibleTable() {
   const handleAddRow = () => {
     if (!newName) return;
     const updatedRows = [...rows];
-    const newHistoryRow = {
+    const newchildrenRow = {
       name: newName,
       description: newDescription,
       id: rows.length + 1,
-      history: [],
+      children: [],
     };
-    updatedRows.push(newHistoryRow);
+    updatedRows.push(newchildrenRow);
     setRows(updatedRows);
     setNewName("");
     setNewDescription("");
@@ -176,20 +160,20 @@ export default function CollapsibleTable() {
 
   const editRow = (index, parentIndex) => {
     setEditingName(false);
-    setEditId(rows[parentIndex]?.history[index].id);
+    setEditId(rows[parentIndex]?.children[index].id);
   };
 
   const SaveEdiRow = (index, parentIndex) => {
     const updatedData = [...rows];
 
     if (parentIndex !== null) {
-      const childIndex = updatedData[parentIndex].history.findIndex(
+      const childIndex = updatedData[parentIndex].children.findIndex(
         (child) => child.id === editId
       );
 
       if (childIndex !== -1) {
-        updatedData[parentIndex].history[childIndex] = {
-          ...updatedData[parentIndex].history[childIndex],
+        updatedData[parentIndex].children[childIndex] = {
+          ...updatedData[parentIndex].children[childIndex],
           name: editingNameValue,
         };
       }
@@ -203,7 +187,7 @@ export default function CollapsibleTable() {
 
   return (
     <Paper elevation={9}>
-      <Card className="max-h-[700px] !overflow-auto">
+      <Card className="max-h-[700px] !overflow-auto !min-w-[600px] !overflow-x-scroll">
         <CardContent>
           <div className="p-5">
             <Typography fontWeight="bold" variant="h5">
@@ -280,26 +264,27 @@ export default function CollapsibleTable() {
                 </TableHead>
                 <TableBody>
                   {rows.map((row, rowIndex) => (
-                    <Row
-                      key={row.name}
-                      setRows={setRows}
-                      row={row}
-                      rows={rows}
-                      rowIndex={rowIndex}
-                      deleteRow={deleteRow}
-                      movePosition={movePosition}
-                      moveHistoryRow={moveHistoryRow}
-                      editPosition={editPosition}
-                      editRow={editRow}
-                      SaveEditData={SaveEditData}
-                      SaveEdiRow={SaveEdiRow}
-                      nameEditing={nameEditing}
-                      setEditingNameValue={setEditingNameValue}
-                      editingNameValue={editingNameValue}
-                      getSerializableData={getSerializableData}
-                      editId={editId}
-                      setEditId={setEditId}
-                    />
+                    <>
+                      <Row
+                        key={row.name}
+                        setRows={setRows}
+                        row={row}
+                        rows={rows}
+                        rowIndex={rowIndex}
+                        deleteRow={deleteRow}
+                        movePosition={movePosition}
+                        movechildrenRow={movechildrenRow}
+                        editPosition={editPosition}
+                        editRow={editRow}
+                        SaveEditData={SaveEditData}
+                        SaveEdiRow={SaveEdiRow}
+                        nameEditing={nameEditing}
+                        setEditingNameValue={setEditingNameValue}
+                        editingNameValue={editingNameValue}
+                        editId={editId}
+                        setEditId={setEditId}
+                      />
+                    </>
                   ))}
                 </TableBody>
               </Table>

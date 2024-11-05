@@ -2,19 +2,43 @@
   {
     "name": "Manager",
     "description": "Responsible for overseeing team operations",
-    "id": 1,
-    "history": [{ "name": "Name", "id": 1 }]
+    "level": 0,
+    "id": 0,
+    "children": [
+      {
+        "name": "1",
+        "id": 101,
+        "children": [],
+        "level": 1
+      }
+    ]
   },
   {
     "name": "CEO",
     "description": "Chief Executive Officer",
-    "id": 2,
-    "history": [{ "name": "Name", "id": 1 }]
+    "level": 0,
+    "id": 1,
+    "children": [
+      {
+        "name": "1",
+        "id": 102,
+        "children": [],
+        "level": 1
+      }
+    ]
   },
   {
     "name": "Employee",
     "description": "Works on various tasks assigned by managers",
-    "id": 3,
-    "history": [{ "name": "Name", "id": 1 }]
+    "level": 0,
+    "id": 2,
+    "children": [
+      {
+        "name": "1",
+        "id": 103,
+        "children": [],
+        "level": 1
+      }
+    ]
   }
 ]
